@@ -1,2 +1,103 @@
-def task()
+#to do list creation.
+#codsoft internship- python task 1
+import tkinter
+import tkinter.messagebox
+import pickle
+from datetime import datetime
+
+window = tkinter.Tk()
+window.title("My To Do List")
+
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+
+
+window_width = 400
+window_height = 300
+window_x = 800
+window_y = 300
+
+window.geometry(f"{window_width}x{window_height}+{window_x}+{window_y}")
+
+
+def task_adding():
+    todo = task_add.get()
+    if todo != "":
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%Y-%m-%d | %H:%M:%S") 
+        task_with_datetime = f"{todo: <50} {formatted_datetime}" 
+        todo_box.insert(tkinter.END, task_with_datetime)
+        task_add.delete(0, tkinter.END)
+        tkinter.messagebox.showinfo(title="Attention!!!!", message="Click Save to Make Changes")
+    else:
+        tkinter.messagebox.showwarning(title="Attention!!!!", message="Please Enter the TASK to ADD")
+
+def task_removing():
+    try:
+        index_todo = todo_box.curselection()[0]
+        todo_box.delete(index_todo)
+        tkinter.messagebox.showinfo(title="Attention!!!!", message="Click Save to Make Changes")
+    except IndexError:
+        tkinter.messagebox.showwarning(title="Attention!!!!", message="Please Select the Task to DELETE")
+
+def load_previous_tasks():
+    try:
+        todo_task = pickle.load(open("tasks.dat", "rb"))
+        todo_box.delete(0, tkinter.END)
+        for task in todo_task:
+            todo_box.insert(tkinter.END, task)
+    except FileNotFoundError:
+        pass 
+
+def on_entry_click(event):
+    if task_add.get() == "Click to enter the task":
+        task_add.delete(0, tkinter.END)
+        task_add.config(fg="black")  
+
+def on_entry_leave(event):
+    if task_add.get() == "":
+        task_add.insert(0, "Click to enter the task")
+        task_add.config(fg="grey", font=("Arial", 10))  
+
+def task_save():
+    todo_list = todo_box.get(0, tkinter.END)
+    pickle.dump(todo_list, open("tasks.dat", "wb"))
+    tkinter.messagebox.showinfo(title="Attention!!!!", message="Changes Saved Successfully")
+
+list_frame = tkinter.Frame(window)
+list_frame.pack(side=tkinter.BOTTOM)
+
+scroller = tkinter.Scrollbar(list_frame)
+scroller.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+
+todo_box = tkinter.Listbox(list_frame, height=15, width=70)
+todo_box.pack(side=tkinter.LEFT)
+todo_box.config(yscrollcommand=scroller.set)
+scroller.config(command=todo_box.yview)
+
+button_frame = tkinter.Frame(window)
+button_frame.pack(side=tkinter.TOP)
+
+task_add = tkinter.Entry(window, width=60, fg="grey") 
+task_add.insert(0, "Click to enter the task")
+task_add.pack(in_=button_frame)
+task_add.bind("<FocusIn>", on_entry_click)
+task_add.bind("<FocusOut>", on_entry_leave)
+
+add_task_button = tkinter.Button(window, text="ADD", font=("arial", 10, "bold"),
+                                 background="orange", width=15, command=task_adding)
+add_task_button.pack(in_=button_frame, side=tkinter.LEFT)
+
+remove_task_button = tkinter.Button(window, text="DELETE", font=("arial", 10, "bold"),
+                                    background="red", width=15, command=task_removing)
+remove_task_button.pack(in_=button_frame, side=tkinter.LEFT)
+
+load_previous_tasks()
+
+save_task_button = tkinter.Button(window, text="SAVE", font=("arial", 10, "bold"),
+                                  background="green", width=15, command=task_save)
+save_task_button.pack(in_=button_frame, side=tkinter.LEFT)
+
+window.mainloop()
+
 
