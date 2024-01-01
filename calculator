@@ -20,6 +20,9 @@ def evaluate_calculation():
     except ZeroDivisionError:
         clear_field()
         text_result.insert(1.0, "Cannot divide by zero")
+    except Exception as e:
+        clear_field()
+        text_result.insert(1.0, f"Error: {str(e)}")
     except:
         clear_field()
         text_result.insert(1.0, "Error")
